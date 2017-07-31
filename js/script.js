@@ -1,5 +1,3 @@
-'use strict';
-
 var initialLocations = [
     {
     name: "Smith's Barcadere",
@@ -28,10 +26,12 @@ var initialLocations = [
     },
 ];
 
-// Declaring global variables now to satisfy strict mode
 var map;
 var clientID;
 var clientSecret;
+var ko;
+var google;
+var alert;
 
 
 var Location = function(data) {
@@ -42,7 +42,6 @@ var Location = function(data) {
     this.URL = "";
     this.street = "";
     this.city = "";
-    this.phone = "";
 
     this.visible = ko.observable(true);
 
@@ -56,12 +55,7 @@ var Location = function(data) {
         }
         self.street = results.location.formattedAddress[0];
         self.city = results.location.formattedAddress[1];
-        self.phone = results.contact.phone;
-        if (typeof self.phone === 'undefined'){
-            self.phone = "";
-        } else {
-            self.phone = formatPhone(self.phone);
-        }
+
     }).fail(function() {
         alert("There was an error with the Foursquare API call. Please refresh the page and try again to load Foursquare data.");
     });
@@ -69,8 +63,7 @@ var Location = function(data) {
     this.contentString = '<div class="info-window-content"><div class="title"><b>' + data.name + "</b></div>" +
         '<div class="content"><a href="' + self.URL +'">' + self.URL + "</a></div>" +
         '<div class="content">' + self.street + "</div>" +
-        '<div class="content">' + self.city + "</div>" +
-        '<div class="content">' + self.phone + "</div></div>";
+        '<div class="content">' + self.city + "</div></div>";
 
     this.infoWindow = new google.maps.InfoWindow({content: self.contentString});
 
@@ -93,8 +86,7 @@ var Location = function(data) {
         self.contentString = '<div class="info-window-content"><div class="title"><b>' + data.name + "</b></div>" +
         '<div class="content"><a href="' + self.URL +'">' + self.URL + "</a></div>" +
         '<div class="content">' + self.street + "</div>" +
-        '<div class="content">' + self.city + "</div>" +
-        '<div class="content"><a href="tel:' + self.phone +'">' + self.phone +"</a></div></div>";
+        '<div class="content">' + self.city + "</div>" +"</a></div></div>";
 
         self.infoWindow.setContent(self.contentString);
 
@@ -156,5 +148,5 @@ function startApp() {
 }
 
 function errorHandling() {
-    alert("Google Maps has failed to load. Please check your internet connection and try again.");
+    alert("Google Maps failed to load. Please try again.");
 }
