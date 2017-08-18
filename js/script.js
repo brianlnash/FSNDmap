@@ -1,76 +1,60 @@
-var initialLocations = [
-    {
-    name: "Smith's Barcadere",
-    lat: 19.276628,
-    lng: -81.390988,
-    },
-    {
-    name: "Cemetery Beach",
-    lat: 19.3656096,
-    lng: -81.3953804,
-    },
-    {
-    name: "Rum Point Beach",
-    lat: 19.368535,
-    lng: -81.276545,
-    },
-    {
-    name: "Turtle Reef",
-    lat: 19.3824723,
-    lng: -81.4166321,
-    },
-    {
-    name: "Cheeseburger Reef",
-    lat: 19.3035886,
-    lng: -81.3849887,
-    },
-];
+//Set variables
+var foursquareBaseURL = 'https://api.foursquare.com/v2/venues/search?ll='
+var foursquareID = "FHQBKCL3EAF43I1M13253BF5ASCJUCHZ34NG5J3KPOLNAZVG";
+var foursquareSecret = "SYMFBJTLBUXYLMQYCTUQRL3M5VEUKS1JIGZGGUOJQSAHUXLU";
+var grandCayman = {lat: 19.3155684, lng: -81.356851}
 
-var map;
-var clientID;
-var clientSecret;
-var ko;
-var google;
-var alert;
-
-
-var Location = function(data) {
+//Load ViewModel
+function ViewModel() {
     var self = this;
-    this.name = data.name;
-    this.lat = data.lat;
-    this.lng = data.lng;
-    this.URL = "";
-    this.street = "";
-    this.city = "";
+    //Sets location list
+    self.snorkelList = ko.observableArray([]);
+    //Receives value from search
+    self.searchTerm = ko.observable("");
 
-    this.visible = ko.observable(true);
+//Center Map View on Grand Cayman Island
+    map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 12,
+            center: grandCayman
+});
 
-    var foursquareURL = 'https://api.foursquare.com/v2/venues/search?ll='+ this.lat + ',' + this.lng + '&client_id=' + clientID + '&client_secret=' + clientSecret + '&v=20170730' + '&query=' + this.name;
+//Location information passed to Foursquare
+var Location = function(location) {
+    var self = this;
+    self.name = location.name;
+    self.lat = location.lat;
+    self.lng = location.lng;
 
-    $.getJSON(foursquareURL).done(function(data) {
-        var results = data.response.venues[0];
-        self.URL = results.url;
-        if (typeof self.URL === 'undefined'){
-            self.URL = "";
-        }
-        self.street = results.location.formattedAddress[0];
-        self.city = results.location.formattedAddress[1];
+    self.visible = ko.observable(true);
 
-    }).fail(function() {
-        alert("There was an error with the Foursquare API call. Please refresh the page and try again to load Foursquare data.");
+//Data feed into Foursquare
+var foursquareURL = foursquareBaseURL + self.lat + ',' + self.lng + '&client_id=' + foursquareID + '&client_secret=' + foursquareSecret + '&v=20170817' + '&query=' + self.name;
+
+// Receive data from Foursquare
+$.getJSON(foursquareURL).done(function(location) {
+    var results = location.response.venues[0];
+    self.category = results.category;
+        if (typeof self.category === 'undefined'){
+            self.category = "";
+    }
+    self.address = results.location.formattedAddress[0];
+    })
+
+// If Foursquare (or my work) breaks
+    .fail(function() {
+        alert("Foursquare took some \"me\" time... please try again.");
     });
 
-    this.contentString = '<div class="info-window-content"><div class="title"><b>' + data.name + "</b></div>" +
-        '<div class="content"><a href="' + self.URL +'">' + self.URL + "</a></div>" +
-        '<div class="content">' + self.street + "</div>" +
-        '<div class="content">' + self.city + "</div></div>";
+// Assuming nothing breaks, populates the InfoWindow data
+    this.contentString = '<div class="info-window-content"><div class="title"><b>' + location.name + "</b></div>" +
+        '<div class="content">' + self.address + "</div>";
 
     this.infoWindow = new google.maps.InfoWindow({content: self.contentString});
 
     this.marker = new google.maps.Marker({
-            position: new google.maps.LatLng(data.lat, data.lng),
+            position: new google.maps.LatLng(location.lat, location.lng),
             map: map,
-            title: data.name
+            title: location.name
     });
 
     this.showMarker = ko.computed(function() {
@@ -82,16 +66,18 @@ var Location = function(data) {
         return true;
     }, this);
 
+
+//Populate InfoWindow on click
     this.marker.addListener('click', function(){
-        self.contentString = '<div class="info-window-content"><div class="title"><b>' + data.name + "</b></div>" +
-        '<div class="content"><a href="' + self.URL +'">' + self.URL + "</a></div>" +
-        '<div class="content">' + self.street + "</div>" +
-        '<div class="content">' + self.city + "</div>" +"</a></div></div>";
+        self.contentString = '<div class="info-window-content"><div class="title"><b>' + location.name + "</b></div>" +
+        '<div class="content">' + self.address + "</div>" +
+        "</div>";
 
+        self.infoWindow.close();
         self.infoWindow.setContent(self.contentString);
-
         self.infoWindow.open(map, this);
 
+//Add bounce animation to site marker icon
         self.marker.setAnimation(google.maps.Animation.BOUNCE);
         setTimeout(function() {
             self.marker.setAnimation(null);
@@ -103,38 +89,24 @@ var Location = function(data) {
     };
 };
 
-function AppViewModel() {
-    var self = this;
-
-    this.searchTerm = ko.observable("");
-
-    this.locationList = ko.observableArray([]);
-
-    map = new google.maps.Map(document.getElementById('map-canvas'), {
-            zoom: 12,
-            center: {lat: 19.3155684, lng: -81.356851}
+    snorkelList.forEach(function(snorkelSpot){
+        self.snorkelList.push( new Location(snorkelSpot));
     });
 
-    // Foursquare API settings
-    clientID = "FHQBKCL3EAF43I1M13253BF5ASCJUCHZ34NG5J3KPOLNAZVG";
-    clientSecret = "SYMFBJTLBUXYLMQYCTUQRL3M5VEUKS1JIGZGGUOJQSAHUXLU";
-
-    initialLocations.forEach(function(locationItem){
-        self.locationList.push( new Location(locationItem));
-    });
-
+//Displays Array (all or partial) based on search criteria
+//Compares lower-case input to lower-case location (apples to apples) names to "knock out" search terms that don't apply
     this.filteredList = ko.computed( function() {
         var filter = self.searchTerm().toLowerCase();
         if (!filter) {
-            self.locationList().forEach(function(locationItem){
-                locationItem.visible(true);
+            self.snorkelList().forEach(function(snorkelSpot){
+                snorkelSpot.visible(true);
             });
-            return self.locationList();
+            return self.snorkelList();
         } else {
-            return ko.utils.arrayFilter(self.locationList(), function(locationItem) {
-                var string = locationItem.name.toLowerCase();
+            return ko.utils.arrayFilter(self.snorkelList(), function(snorkelSpot) {
+                var string = snorkelSpot.name.toLowerCase();
                 var result = (string.search(filter) >= 0);
-                locationItem.visible(result);
+                snorkelSpot.visible(result);
                 return result;
             });
         }
@@ -143,10 +115,11 @@ function AppViewModel() {
     this.mapElem = document.getElementById('map');
 }
 
+//Activates Knockout
 function startApp() {
-    ko.applyBindings(new AppViewModel());
+    ko.applyBindings(new ViewModel());
 }
 
-function errorHandling() {
-    alert("Google Maps failed to load. Please try again.");
+function mapError() {
+    alert("The gnomes that make Google Maps work are napping. Please refresh.");
 }
