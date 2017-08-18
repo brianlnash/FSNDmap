@@ -8,4 +8,4 @@ Download all files and folders into an appropriate folder.
 
 Open index.html to view.
 
-Search function searches on currently populated list. Destinations can be added to script.js.
+Search function searches on currently populated list. Destinations can be added to locations.js.
