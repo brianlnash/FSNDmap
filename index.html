@@ -2,12 +2,12 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Grand Cayman Scuba and Snorkel Spots</title>
+    <title>Grand Cayman Snorkel Spots</title>
     <link rel="stylesheet" href="css/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <div id = "map-canvas"></div>
+    <div id = "map"></div>
     <div id = "search-container">
         <div id="search-nav">
             <input id="input" placeholder="Search..." type="input" data-bind="textInput: searchTerm, valueUpdate: 'keydown'"></input>
@@ -19,10 +19,10 @@
     </div>
     </div>
 
-
     <script src='js/knockout-3.4.2.js'></script>
     <script src='js/jquery-1.12.0.min.js'></script>
+    <script src='js/locations.js'></script>
     <script src='js/script.js'></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwJxoMEWjRPPyBNAzVTinHX4KZiiAZTjI&callback=startApp&libraries=places" onerror="errorHandling()"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDOMfnQRHUk_JI7UAEdkMbWSgztxWWYxRU&callback=ViewModel&libraries=places" onerror="mapError()"></script>
 </body>
 </html>
