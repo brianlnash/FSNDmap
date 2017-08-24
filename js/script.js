@@ -1,8 +1,9 @@
 //Set variables
-var foursquareBaseURL = 'https://api.foursquare.com/v2/venues/search?ll='
+var foursquareBaseURL = "https://api.foursquare.com/v2/venues/search?ll=";
 var foursquareID = "FHQBKCL3EAF43I1M13253BF5ASCJUCHZ34NG5J3KPOLNAZVG";
 var foursquareSecret = "SYMFBJTLBUXYLMQYCTUQRL3M5VEUKS1JIGZGGUOJQSAHUXLU";
-var grandCayman = {lat: 19.3155684, lng: -81.356851}
+var grandCayman = {lat: 19.3155684, lng: -81.356851};
+var map;
 
 //Load ViewModel
 function ViewModel() {
@@ -13,7 +14,7 @@ function ViewModel() {
     self.searchTerm = ko.observable("");
 
 //Center Map View on Grand Cayman Island
-    map = new google.maps.Map(document.getElementById('map'), {
+    map = new google.maps.Map(document.getElementById("map"), {
             zoom: 12,
             center: grandCayman
 });
@@ -35,7 +36,7 @@ $.getJSON(foursquareURL).done(function(location) {
     var results = location.response.venues[0];
     self.category = results.category;
         if (typeof self.category === 'undefined'){
-            self.category = "";
+            self.category = "Information Unavailable";
     }
     self.address = results.location.formattedAddress[0];
     })
@@ -66,7 +67,6 @@ $.getJSON(foursquareURL).done(function(location) {
         return true;
     }, this);
 
-
 //Populate InfoWindow on click
     this.marker.addListener('click', function(){
         self.contentString = '<div class="info-window-content"><div class="title"><b>' + location.name + "</b></div>" +
@@ -90,7 +90,7 @@ $.getJSON(foursquareURL).done(function(location) {
 };
 
     snorkelList.forEach(function(snorkelSpot){
-        self.snorkelList.push( new Location(snorkelSpot));
+        self.snorkelList.push(new Location(snorkelSpot));
     });
 
 //Displays Array (all or partial) based on search criteria
