@@ -34,9 +34,9 @@ var foursquareURL = foursquareBaseURL + self.lat + ',' + self.lng + '&client_id=
 // Receive data from Foursquare
 $.getJSON(foursquareURL).done(function(location) {
     var results = location.response.venues[0];
-    self.category = results.category;
-        if (typeof self.category === 'undefined'){
-            self.category = "Information Unavailable";
+    self.address = results.address;
+        if (typeof self.address === 'undefined'){
+            self.address = "Information Unavailable";
     }
     self.address = results.location.formattedAddress[0];
     })
